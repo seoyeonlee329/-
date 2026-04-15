@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>Bluepoint — 에너지 분류체계</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── RESET & BASE ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #F5F4F0;
+  --surface:  #FAFAF7;
+  --ink:      #1A1A18;
+  --ink2:     #3A3A36;
+  --muted:    #8A8A80;
+  --line:     #DEDBD2;
+
+  --A: #1B4FD8;  --A-l: #E8EFFE;  --A-m: #BDD0FF;
+  --B: #0A6E47;  --B-l: #E6F5EE;  --B-m: #9EDCC0;
+  --C: #B03A00;  --C-l: #FDF0E8;  --C-m: #F8C49A;
+  --D: #5B2D8E;  --D-l: #F2ECF9;  --D-m: #D4BAF0;
+
+  --trl-hi: #059669; --trl-hi-bg: #D1FAE5;
+  --trl-md: #B45309; --trl-md-bg: #FEF3C7;
+  --trl-lo: #DC2626; --trl-lo-bg: #FEE2E2;
+  --gap-c:  #EF4444; --gap-bg:    #FFF1F2;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR ──────────────────────────────────── */
+.topbar {
+  height: 56px;
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  padding: 0 36px;
+  gap: 20px;
+  flex-shrink: 0;
+}
+.topbar-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: #E2E8F0;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.topbar-sep { width: 1px; height: 18px; background: #334155; }
+.topbar-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #CBD5E1;
+}
+.topbar-right {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: #64748B;
+}
+
+/* ── LAYOUT ──────────────────────────────────── */
+.layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  min-height: calc(100vh - 56px - 32px);
+}
+
+/* ── SIDE PANELS ─────────────────────────────── */
+.panel {
+  padding: 24px 18px;
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+.panel.right { border-right: none; border-left: 1px solid var(--line); }
+
+.panel-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .16em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.sector-block { margin-bottom: 18px; }
+.sector-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+.sector-swatch {
+  width: 9px; height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.sector-name {
+  font-size: 11px;
+  font-weight: 700;
+}
+.company-list {
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.company-item {
+  font-size: 10px;
+  color: var(--ink2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background .15s;
+}
+.company-item:hover { background: rgba(0,0,0,.05); }
+.company-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.trl-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* TRL legend */
+.trl-legend { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+.trl-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  font-size: 9.5px;
+}
+.trl-swatch {
+  width: 24px; height: 10px;
+  border-radius: 2px;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+/* right panel — gaps */
+.gap-block { margin-bottom: 16px; }
+.gap-section-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.gap-item {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+.gap-badge {
+  width: 18px; height: 18px;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.gap-text { font-size: 9.5px; color: var(--ink2); line-height: 1.55; }
+.gap-text strong { display: block; font-size: 10px; color: var(--ink); font-weight: 600; }
+
+/* ── WHEEL CENTER ────────────────────────────── */
+.wheel-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+}
+#wheelSvg {
+  width: min(660px, 100%);
+  height: min(660px, 100%);
+  overflow: visible;
+  cursor: default;
+}
+
+/* ── TOOLTIP ─────────────────────────────────── */
+#tooltip {
+  position: fixed;
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  width: 260px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.08);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .18s;
+  z-index: 9999;
+}
+#tooltip.visible { opacity: 1; }
+.tt-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.tt-name {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.tt-trl {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tt-sector {
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.tt-divider { border: none; border-top: 1px solid var(--line); margin: 8px 0; }
+.tt-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+.tt-label { color: var(--muted); font-weight: 500; white-space: nowrap; }
+.tt-value { color: var(--ink2); }
+.tt-summary {
+  font-size: 10.5px;
+  color: var(--ink2);
+  line-height: 1.6;
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 7px 9px;
+}
+
+/* ── FOOTER ──────────────────────────────────── */
+footer {
+  height: 32px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 20px;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.footer-note {
+  font-size: 9px;
+  color: var(--muted);
+}
+.footer-note b { color: var(--ink2); font-weight: 600; }
+
+/* ── DOT HOVER EFFECT ────────────────────────── */
+.company-dot-svg {
+  cursor: pointer;
+  transition: r .15s;
+}
+.company-dot-svg:hover { r: 13; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-logo">Bluepoint Partners</span>
+  <div class="topbar-sep"></div>
+  <span class="topbar-title">에너지 포트폴리오 분류체계</span>
+  <span class="topbar-right">WEO 2025 × KETEP 2025 &nbsp;|&nbsp; 2026.04</span>
+</div>
+
+<div class="layout">
+
+  <!-- LEFT PANEL -->
+  <div class="panel" id="leftPanel"></div>
+
+  <!-- WHEEL -->
+  <div class="wheel-center">
+    <svg id="wheelSvg" viewBox="-330 -330 660 660"></svg>
+  </div>
+
+  <!-- RIGHT PANEL — GAPS ONLY -->
+  <div class="panel right" id="rightPanel"></div>
+
+</div>
+
+<footer>
+  <div class="footer-note"><b>메인 분류(X축)</b>: WEO 2025(IEA) 4개 섹터</div>
+  <div class="footer-note"><b>밸류체인(Y축)</b>: KETEP 2025 5단계 (시스템·플랜트 / 모듈·장비 / 부품·소재 / 소프트웨어·제어 / 서비스·개발·운영)</div>
+  <div class="footer-note"><b>에너지 흐름</b>: ① 생산·양산 → ② 저장·변환 → ③ 이송·인프라 → ④ 소비·활용</div>
+  <div class="footer-note" style="margin-left:auto"><b>●</b> 보유 포트폴리오 &nbsp; <b style="color:var(--gap-c)">?</b> 소싱 공백</div>
+</footer>
+
+<!-- TOOLTIP -->
+<div id="tooltip"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA — 이 섹션만 수정하면 전체 화면이 자동 업데이트됩니다.
+   ═══════════════════════════════════════════════════════════════ */
+
+const SECTORS = [
+  {
+    id: 'A',
+    name: 'A. 수요 전환·효율',
+    desc: '에너지를 덜 쓰게 하거나, 더 효율적으로 쓰게 하거나, 전기화/최적화하는 영역',
+    color: '#1B4FD8', light: '#E8EFFE', mid: '#BDD0FF',
+    startAngle: 180, endAngle: 270,
+  },
+  {
+    id: 'B',
+    name: 'B. 전력 시스템',
+    desc: '전기를 생산·변환·연계·저장·운영하는 영역',
+    color: '#0A6E47', light: '#E6F5EE', mid: '#9EDCC0',
+    startAngle: 270, endAngle: 360,
+  },
+  {
+    id: 'C',
+    name: 'C. 저배출 연료·탄소 관리',
+    desc: '전력 외 분자 에너지나 탄소 감축 수단을 다루는 영역',
+    color: '#B03A00', light: '#FDF0E8', mid: '#F8C49A',
+    startAngle: 0, endAngle: 90,
+  },
+  {
+    id: 'D',
+    name: 'D. 자원·순환·공급망',
+    desc: '원료, 회수, 재활용, 공급 안정성, 자원 확보와 연결되는 영역',
+    color: '#5B2D8E', light: '#F2ECF9', mid: '#D4BAF0',
+    startAngle: 90, endAngle: 180,
+  },
+];
+
+/* TRL: trl 필드에 숫자 입력 (1-9)
+   ring: 1=생산·양산  2=저장·변환  3=이송·인프라  4=소비·활용
+   angle: 해당 섹터 범위 내 각도 (섹터 범위 ±5° 이상 안쪽 권장)
+   vc: 밸류체인 단계 */
+const COMPANIES = [
+  // ── A. 수요 전환·효율 (180°–270°) ────────────────────────
+  {
+    name: '주식회사 기가에떼', abbr: '기가에떼',
+    sector: 'A', ring: 3, angle: 202,
+    vc: '시스템·플랜트', tags: ['열관리', 'TES'], trl: 5,
+    founded: '2022', ceo: '장대준',
+    summary: '재생에너지·폐열 기반 열배터리(TES) 플랫폼. 장주기 열에너지 저장으로 산업 현장 폐열을 재활용.',
+  },
+  {
+    name: '주식회사 나인와트', abbr: '나인와트',
+    sector: 'A', ring: 4, angle: 218,
+    vc: '소프트웨어·제어', tags: ['에너지관리', 'EMS'], trl: 8,
+    founded: '2021', ceo: '김영록',
+    summary: '빅데이터 분석 기반 에너지 절감 플랫폼. 건물·산업 현장 에너지 사용을 데이터 기반으로 최적화.',
+  },
+  {
+    name: '주식회사 포엘', abbr: '포엘',
+    sector: 'A', ring: 4, angle: 234,
+    vc: '부품·소재', tags: ['복사냉각', '열관리 소재'], trl: 3,
+    founded: '2022', ceo: '이종헌',
+    summary: '제로에너지 복사냉각 소재 기술. 전력 없이 건물 표면을 냉각해 냉방 에너지 수요를 근본적으로 줄이는 소재.',
+  },
+  {
+    name: '주식회사 틸다', abbr: '틸다',
+    sector: 'A', ring: 4, angle: 248,
+    vc: '소프트웨어·제어', tags: ['에너지 최적화', 'AI'], trl: 8,
+    founded: '2021', ceo: '정지량',
+    summary: '머신러닝 기반 비즈니스 프로세스 최적화. 에너지·자원 최적화에 특화된 AI 솔루션.',
+  },
+  {
+    name: '주식회사 시마크로', abbr: '시마크로',
+    sector: 'A', ring: 4, angle: 261,
+    vc: '소프트웨어·제어', tags: ['디지털트윈', '화학공정'], trl: 7,
+    founded: '2020', ceo: '윤정호',
+    summary: '화학 분야 디지털트윈 적용 SaaS. 화학 공정을 가상 환경에서 시뮬레이션·최적화.',
+  },
+
+  // ── B. 전력 시스템 (270°–360°) ───────────────────────────
+  {
+    name: '알엑스 주식회사', abbr: '알엑스',
+    sector: 'B', ring: 1, angle: 282,
+    vc: '서비스·개발·운영', tags: ['원자력', 'SMR'], trl: 3,
+    founded: '2022', ceo: '이강헌',
+    summary: '차세대 원전(SMR) 엔지니어링 서비스. 소형모듈원자로 설계·인허가·운영 지원.',
+  },
+  {
+    name: '자인에너지 주식회사', abbr: '자인에너지',
+    sector: 'B', ring: 2, angle: 291,
+    vc: '부품·소재', tags: ['고체전지', '이차전지 소재'], trl: 5,
+    founded: '2021', ceo: '이주현',
+    summary: '리튬 고체전지 및 다기능성 음이온수용체 기반 차세대 이차전지 소재 개발.',
+  },
+  {
+    name: '주식회사 솔리텍', abbr: '솔리텍',
+    sector: 'B', ring: 2, angle: 301,
+    vc: '부품·소재', tags: ['전고체배터리', '고체전해질'], trl: 5,
+    founded: '2020', ceo: '이호춘',
+    summary: '전고체 배터리 및 설폰 기반 고체전해질 소재 제조. 안전성·에너지밀도를 동시에 높이는 차세대 배터리 소재.',
+  },
+  {
+    name: '주식회사 에스그래핀', abbr: '에스그래핀',
+    sector: 'B', ring: 2, angle: 312,
+    vc: '부품·소재', tags: ['이차전지', '음극재'], trl: 6,
+    founded: '2019', ceo: '이관형',
+    summary: '그래핀 기반 2차전지 음극재 제조. 그래핀 특성을 활용해 배터리 충방전 속도·수명 향상.',
+  },
+  {
+    name: '주식회사 티씨엠에스', abbr: '티씨엠에스',
+    sector: 'B', ring: 2, angle: 323,
+    vc: '부품·소재', tags: ['이차전지', '분리막'], trl: 6,
+    founded: '2021', ceo: '신태용',
+    summary: '이차전지 분리막 연신 클립 및 차세대 분리막 제조기술. 배터리 안전성의 핵심 부품.',
+  },
+  {
+    name: '주식회사 에너캠프', abbr: '에너캠프',
+    sector: 'B', ring: 3, angle: 332,
+    vc: '서비스·개발·운영', tags: ['ESS', 'EV충전'], trl: 6,
+    founded: '2021', ceo: '최정섭',
+    summary: '스마트 이동형 ESS 및 온디맨드 EV충전 서비스. 전기차 충전 인프라 부족 지역을 이동형 ESS로 해결.',
+  },
+  {
+    name: '주식회사 프리딕션', abbr: '프리딕션',
+    sector: 'B', ring: 3, angle: 341,
+    vc: '소프트웨어·제어', tags: ['EV충전', '배터리진단'], trl: 6,
+    founded: '2020', ceo: '김두호',
+    summary: '전기차 충전 중 배터리 진단·치료 솔루션. 충전 과정에서 배터리 상태를 실시간 분석·최적화.',
+  },
+  {
+    name: '주식회사 리모빌리티', abbr: '리모빌리티',
+    sector: 'B', ring: 3, angle: 350,
+    vc: '모듈·장비', tags: ['EV배터리 안전', '화재대응'], trl: 5,
+    founded: '2022', ceo: '이재환',
+    summary: '전기차 초기 화재 진압 솔루션. 배터리 열폭주 초기 단계에서 자동 진압해 2차 피해 방지.',
+  },
+  {
+    name: '주식회사 빅토리지', abbr: '빅토리지',
+    sector: 'B', ring: 4, angle: 353,
+    vc: '소프트웨어·제어', tags: ['ESS', '운영최적화'], trl: 8,
+    founded: '2020', ceo: '이태승',
+    summary: '소형 ESS 운영 최적화 솔루션. AI 기반으로 ESS 충방전을 최적화해 전기요금 절감·수익 극대화.',
+  },
+  {
+    name: '주식회사 스칼라데이터', abbr: '스칼라데이터',
+    sector: 'B', ring: 4, angle: 358,
+    vc: '소프트웨어·제어', tags: ['EV충전', '플랫폼'], trl: 8,
+    founded: '2020', ceo: '윤예찬',
+    summary: '전기차 충전 플랫폼. 충전소 운영·관제·결제를 통합한 EV 충전 인프라 SaaS.',
+  },
+
+  // ── C. 저배출 연료·탄소 관리 (0°–90°) ───────────────────
+  {
+    name: '주식회사 엔포러스', abbr: '엔포러스',
+    sector: 'C', ring: 1, angle: 10,
+    vc: '시스템·플랜트', tags: ['수소생산', 'SOEC'], trl: 5,
+    founded: '2021', ceo: '안진수',
+    summary: '고온수전해(SOEC) 기반 청정수소 생산 시스템. 고온에서 물을 전기분해해 그린수소를 생산하는 고효율 시스템.',
+  },
+  {
+    name: '주식회사 그리네플', abbr: '그리네플',
+    sector: 'C', ring: 1, angle: 21,
+    vc: '시스템·플랜트', tags: ['바이오에너지', '바이오가스'], trl: 6,
+    founded: '2020', ceo: '이형술',
+    summary: '유기성 부산물 기반 바이오에너지 생산·유통. 음식물쓰레기·농업부산물 등을 바이오가스로 전환.',
+  },
+  {
+    name: '제트론', abbr: '제트론',
+    sector: 'C', ring: 1, angle: 33,
+    vc: '시스템·플랜트', tags: ['DAC', 'SAF'], trl: 4,
+    founded: '2022', ceo: '조인진',
+    summary: '공기 중 CO₂ 포집 기반 저비용 SAF 생산. 직접공기포집(DAC) 기술로 포집한 CO₂를 지속가능 항공유로 전환.',
+  },
+  {
+    name: '주식회사 그린다', abbr: '그린다',
+    sector: 'C', ring: 1, angle: 45,
+    vc: '부품·소재', tags: ['SAF', '바이오연료'], trl: 6,
+    founded: '2021', ceo: '황규용',
+    summary: '미활용 유지(폐식용유 등) 활용 바이오항공유(SAF) 원료 생산. 폐자원을 고부가 항공 연료 원료로 전환.',
+  },
+  {
+    name: '주식회사 비욘드캡처', abbr: '비욘드캡처',
+    sector: 'C', ring: 2, angle: 55,
+    vc: '시스템·플랜트', tags: ['CCUS', '전기화학'], trl: 5,
+    founded: '2022', ceo: '태성봉·김병수',
+    summary: '전기화학적 탄소 포집 시스템. 기존 흡수제 방식 대비 에너지 소모를 줄인 전기화학 기반 CCUS 솔루션.',
+  },
+  {
+    name: '주식회사 리필', abbr: '리필',
+    sector: 'C', ring: 2, angle: 66,
+    vc: '부품·소재', tags: ['탄소포집', '효소'], trl: 3,
+    founded: '2022', ceo: '이지은',
+    summary: '효소 기반 이산화탄소 포집체 개발. 자연 효소의 CO₂ 반응성을 활용한 저에너지 탄소포집 소재.',
+  },
+  {
+    name: '주식회사 그리너리', abbr: '그리너리',
+    sector: 'C', ring: 4, angle: 75,
+    vc: '서비스·개발·운영', tags: ['탄소크레딧', 'LCA'], trl: 8,
+    founded: '2021', ceo: '황유식',
+    summary: '자발적 탄소크레딧 거래 플랫폼(팝플) 및 LCA 모니터링 서비스. 기업 탄소 감축 활동을 크레딧으로 전환·거래.',
+  },
+  {
+    name: '주식회사 퀀텀캣', abbr: '퀀텀캣',
+    sector: 'C', ring: 2, angle: 83,
+    vc: '부품·소재', tags: ['촉매', '대체촉매'], trl: 5,
+    founded: '2021', ceo: '강신현',
+    summary: '백금족 촉매 대체 차세대 상온촉매 양산화 기술. 희귀금속 의존 없이 수소생산·화학공정에 적용 가능한 촉매.',
+  },
+
+  // ── D. 자원·순환·공급망 (90°–180°) ──────────────────────
+  {
+    name: '주식회사 리피유', abbr: '리피유',
+    sector: 'D', ring: 2, angle: 100,
+    vc: '부품·소재', tags: ['화학재활용', '재생소재'], trl: 5,
+    founded: '2022', ceo: '박병철',
+    summary: '저온 해중합 기반 폐합성수지(PU/TPU) 친환경 재생소재 생산. 화학적 재활용으로 고순도 원료 회수.',
+  },
+  {
+    name: '주식회사 플라시클', abbr: '플라시클',
+    sector: 'D', ring: 2, angle: 112,
+    vc: '시스템·플랜트', tags: ['화학재활용', '해중합'], trl: 5,
+    founded: '2022', ceo: '조창범',
+    summary: '차세대 플라스틱 해중합 솔루션. 폐플라스틱을 단량체 수준으로 분해해 원료로 재활용하는 공정 개발.',
+  },
+  {
+    name: '주식회사 에코알앤에스', abbr: '에코알앤에스',
+    sector: 'D', ring: 2, angle: 122,
+    vc: '시스템·플랜트', tags: ['폐배터리 재활용', '리튬회수'], trl: 6,
+    founded: '2020', ceo: '류상훈',
+    summary: '건식공정 활용 친환경 리튬 회수·폐배터리 재활용. 습식 대비 환경부하가 낮은 건식 공정으로 배터리 핵심 소재 회수.',
+  },
+  {
+    name: '리사이클렛저 주식회사', abbr: '리사이클렛저',
+    sector: 'D', ring: 3, angle: 131,
+    vc: '소프트웨어·제어', tags: ['바이오연료 인증', '공급망'], trl: 8,
+    founded: '2021', ceo: '김기종',
+    summary: '바이오연료 인증 글로벌 블록체인 플랫폼. 블록체인으로 바이오연료 생산·유통 이력을 투명하게 관리·인증.',
+  },
+  {
+    name: '주식회사 파운드오브제', abbr: '파운드오브제',
+    sector: 'D', ring: 3, angle: 141,
+    vc: '서비스·개발·운영', tags: ['재활용소재', '플랫폼'], trl: 7,
+    founded: '2021', ceo: '김주희',
+    summary: '재료사업자-화학회사 미스매칭 해결 재활용소재 플랫폼. 재활용 소재 공급자와 수요자를 연결하는 B2B 마켓플레이스.',
+  },
+  {
+    name: '주식회사 이노맥신', abbr: '이노맥신',
+    sector: 'D', ring: 1, angle: 150,
+    vc: '부품·소재', tags: ['MXene', '첨단소재'], trl: 5,
+    founded: '2021', ceo: '오정민',
+    summary: 'MXene으로 소재 산업 패러다임을 바꾸는 기업. 2D 신소재 MXene을 배터리·전자기기·에너지 분야에 적용.',
+  },
+  {
+    name: 'astralQ', abbr: 'astralQ',
+    sector: 'D', ring: 1, angle: 159,
+    vc: '소프트웨어·제어', tags: ['AI 소재발굴', '자동합성'], trl: 4,
+    founded: '2023', ceo: '조정주',
+    summary: 'AI 기반 신소재 탐색 + 로봇 기반 자동 합성 실험실. AI로 후보 소재를 발굴하고 로봇이 합성 실험을 자동화.',
+  },
+  {
+    name: '주식회사 큐빔솔루션', abbr: '큐빔솔루션',
+    sector: 'D', ring: 3, angle: 167,
+    vc: '모듈·장비', tags: ['비파괴검사', '배터리재활용'], trl: 7,
+    founded: '2020', ceo: '정봉기',
+    summary: '중성자 방사화 분석 기반 비파괴 검사 장치. 배터리 재활용 공정에서 내부 성분을 비파괴적으로 분석.',
+  },
+  {
+    name: '주식회사 레이저앤그래핀', abbr: '레이저앤그래핀',
+    sector: 'D', ring: 1, angle: 173,
+    vc: '부품·소재', tags: ['LIG', '그래핀'], trl: 5,
+    founded: '2021', ceo: '이근우',
+    summary: '펨토초 레이저 기반 LIG(레이저 유도 그래핀) 제품 개발. 레이저로 탄소 소재에 직접 그래핀을 형성하는 기술.',
+  },
+  {
+    name: '주식회사 플랜트너', abbr: '플랜트너',
+    sector: 'D', ring: 4, angle: 108,
+    vc: '부품·소재', tags: ['생분해 소재', '친환경 포장'], trl: 5,
+    founded: '2022', ceo: '신정우',
+    summary: '알긴산 생분해 소재 개발. 해양 바이오매스 기반 생분해 소재로 플라스틱 대체 가능성 탐색 중 (에너지 직접성 낮음 — 별도 검토 권장).',
+  },
+  {
+    name: '주식회사 뉴로팩', abbr: '뉴로팩',
+    sector: 'D', ring: 4, angle: 118,
+    vc: '부품·소재', tags: ['바이오매스', '친환경 포장재'], trl: 5,
+    founded: '2022', ceo: '고의석',
+    summary: '바이오매스 친환경 포장재 개발 (에너지 직접성 낮음 — 별도 검토 권장).',
+  },
+];
+
+/* 소싱 공백 — 즉시/6~12개월 구분 제거, 중요도만 표시 */
+const GAPS = [
+  {
+    sector: 'B', label: '태양광·풍력\n부품/시스템',
+    ring: 1, angle: 288,
+    desc: 'B × 시스템·플랜트. 국내 재생에너지 21.6% 목표(제10차 전기본) 대비 포트폴리오 완전 공백. KETEP: 풍력 핵심 부품 해외의존도 높음.',
+    keywords: '페로브스카이트 태양전지, 부유식 해상풍력, 풍력 O&M SW',
+  },
+  {
+    sector: 'B', label: 'VPP·스마트\n그리드 SW',
+    ring: 3, angle: 308,
+    desc: 'B × 소프트웨어·제어. 분산에너지 특별법 시행, VPP 시장 개방. KETEP: 스마트그리드 SW 국내 플레이어 부족.',
+    keywords: '가상발전소(VPP), AMI 데이터 분석, 마이크로그리드 EMS',
+  },
+  {
+    sector: 'C', label: '수소 저장·운송\n·크래킹',
+    ring: 2, angle: 58,
+    desc: 'C × 부품·소재. CHPS 청정수소 발전 입찰 시장 개설. 수소 Midstream 포트폴리오 전무.',
+    keywords: '암모니아 크래킹 촉매, LOHC 소재, 수소 압축기',
+  },
+  {
+    sector: 'C', label: '수소 혼소/전소\n발전·연료전지',
+    ring: 4, angle: 68,
+    desc: 'C × 시스템·플랜트. CHPS 2023년 경쟁률 5.36:1. 국내 5개 발전 자회사 수소전환 로드맵 집행 중. 포트폴리오 연료전지 전무.',
+    keywords: 'SOFC 스택 소재, 수소 혼소 버너·노즐, 연료전지 O&M SW',
+  },
+  {
+    sector: 'B', label: '레독스플로우\n장주기 ESS',
+    ring: 2, angle: 320,
+    desc: 'B × 모듈·장비. 재생에너지 간헐성 해소 위한 장주기 ESS 수요 증가. 현 포트폴리오 단기 ESS 위주.',
+    keywords: '바나듐 RFB, 철 에어 배터리, NaS 배터리 소재',
+  },
+  {
+    sector: 'D', label: '핵심광물 회수\n전력반도체',
+    ring: 1, angle: 145,
+    desc: 'D × 부품·소재. KETEP: 전력반도체 해외의존도 매우 높음. 에너지 전환 핵심광물 수요 증가.',
+    keywords: 'SiC/GaN 전력반도체, 리튬·니켈 건식 회수, 희토류 대체 소재',
+  },
+  {
+    sector: 'C', label: '탄소 MRV\nSaaS',
+    ring: 4, angle: 82,
+    desc: 'C × 서비스. 청정수소 인증제도 도입, ESG 공시 의무화. CHPS 비가격 평가요소에 환경기여도 포함.',
+    keywords: 'Well-to-Gate 탄소추적, Scope 3 탄소회계, CBAM 대응 SaaS',
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   CONSTANTS
+   ═══════════════════════════════════════════════════════════════ */
+const NS = 'http://www.w3.org/2000/svg';
+const R = { core: 52, r1: 92, r2: 144, r3: 200, r4: 258, label: 310, rim: 322 };
+const RING_RADII = [
+  (R.core + R.r1) / 2,
+  (R.r1 + R.r2) / 2,
+  (R.r2 + R.r3) / 2,
+  (R.r3 + R.r4) / 2,
+];
+const TRL_STYLE = (n) => n >= 7
+  ? { bg: '#D1FAE5', color: '#059669', label: `TRL ${n}` }
+  : n >= 4
+  ? { bg: '#FEF3C7', color: '#B45309', label: `TRL ${n}` }
+  : { bg: '#FEE2E2', color: '#DC2626', label: `TRL ${n}` };
+
+function polar(angle, r) {
+  const rad = (angle - 90) * Math.PI / 180;
+  return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
+}
+
+function arcPath(a1, a2, r1, r2) {
+  const s1 = polar(a1, r2), e1 = polar(a2, r2);
+  const s2 = polar(a2, r1), e2 = polar(a1, r1);
+  const lg = (a2 - a1) > 180 ? 1 : 0;
+  return `M${s1.x},${s1.y} A${r2},${r2} 0 ${lg},1 ${e1.x},${e1.y}
+          L${s2.x},${s2.y} A${r1},${r1} 0 ${lg},0 ${e2.x},${e2.y}Z`;
+}
+
+function svgEl(tag, attrs = {}) {
+  const el = document.createElementNS(NS, tag);
+  Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+  return el;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BUILD SVG WHEEL
+   ═══════════════════════════════════════════════════════════════ */
+function buildWheel() {
+  const svg = document.getElementById('wheelSvg');
+  svg.innerHTML = '';
+
+  // Defs
+  const defs = svgEl('defs');
+  const rg = svgEl('radialGradient', { id: 'coreGrad', cx: '50%', cy: '50%', r: '50%' });
+  [['0%','#1e293b'],['100%','#0c1220']].forEach(([off,col]) => {
+    const s = svgEl('stop', { offset: off }); s.setAttribute('stop-color', col); rg.appendChild(s);
+  });
+  defs.appendChild(rg);
+  svg.appendChild(defs);
+
+  // Background
+  svg.appendChild(svgEl('circle', { cx:0, cy:0, r: R.rim + 6, fill:'#F8F8F4' }));
+
+  // Sector fills (4 rings each)
+  const ringPairs = [[R.core,R.r1],[R.r1,R.r2],[R.r2,R.r3],[R.r3,R.r4]];
+  SECTORS.forEach(sec => {
+    ringPairs.forEach(([r1,r2], ri) => {
+      const op = [0.16, 0.11, 0.08, 0.06][ri];
+      svg.appendChild(svgEl('path', {
+        d: arcPath(sec.startAngle, sec.endAngle, r1, r2),
+        fill: sec.color, 'fill-opacity': op,
+        stroke: sec.color, 'stroke-width': 0.4, 'stroke-opacity': 0.25,
+      }));
+    });
+  });
+
+  // Ring separator circles
+  [R.r1, R.r2, R.r3, R.r4].forEach(r => {
+    svg.appendChild(svgEl('circle', {
+      cx:0, cy:0, r,
+      fill:'none', stroke:'#BFC7CE',
+      'stroke-width': 0.7, 'stroke-dasharray':'3,3'
+    }));
+  });
+
+  // Sector dividers
+  SECTORS.forEach(sec => {
+    [sec.startAngle, sec.endAngle].forEach(ang => {
+      const p1 = polar(ang, R.core), p2 = polar(ang, R.r4);
+      svg.appendChild(svgEl('line', {
+        x1:p1.x, y1:p1.y, x2:p2.x, y2:p2.y,
+        stroke:'#94A3B8', 'stroke-width':0.8, 'stroke-dasharray':'4,3'
+      }));
+    });
+  });
+
+  // Sector outer label band
+  SECTORS.forEach(sec => {
+    svg.appendChild(svgEl('path', {
+      d: arcPath(sec.startAngle + 1, sec.endAngle - 1, R.r4 + 4, R.label - 4),
+      fill: sec.color, 'fill-opacity': 0.88,
+    }));
+    const mid = (sec.startAngle + sec.endAngle) / 2;
+    const lp = polar(mid, (R.r4 + R.label) / 2);
+    const lines = sec.name.split('·').length > 1
+      ? [sec.id + '.', sec.name.replace(sec.id + '. ', '').split('·').join('\u00B7')]
+      : sec.name.split(' ').reduce((acc,w,i) => {
+          if(i===0) acc.push(w); else { const last=acc[acc.length-1]; last.length+w.length<9?acc[acc.length-1]+=' '+w:acc.push(w); } return acc;
+        }, []);
+    // simple 2-line split by sector
+    const shortLabels = {
+      A: ['A.', '수요 전환·효율'],
+      B: ['B.', '전력 시스템'],
+      C: ['C.', '저배출 연료', '·탄소 관리'],
+      D: ['D.', '자원·순환', '·공급망'],
+    };
+    const lbls = shortLabels[sec.id];
+    const g = svgEl('g', { transform:`translate(${lp.x},${lp.y})` });
+    lbls.forEach((line, i) => {
+      const t = svgEl('text', {
+        x:0, y:(i - (lbls.length-1)/2)*12,
+        'text-anchor':'middle','dominant-baseline':'middle',
+        fill:'#FFFFFF','font-size':9.5,'font-weight':700,
+        'font-family':'Noto Sans KR, sans-serif',
+      });
+      t.textContent = line;
+      g.appendChild(t);
+    });
+    svg.appendChild(g);
+  });
+
+  // Ring labels (left side)
+  [
+    { r: RING_RADII[0], label: '① 생산·양산' },
+    { r: RING_RADII[1], label: '② 저장·변환' },
+    { r: RING_RADII[2], label: '③ 이송·인프라' },
+    { r: RING_RADII[3], label: '④ 소비·활용' },
+  ].forEach(rl => {
+    const p = polar(263, rl.r);
+    const t = svgEl('text', {
+      x:p.x, y:p.y,
+      'text-anchor':'middle','dominant-baseline':'middle',
+      fill:'#64748B','font-size':7.5,'font-weight':500,
+      'font-family':'DM Mono, monospace','letter-spacing':'0.04em',
+    });
+    t.textContent = rl.label;
+    svg.appendChild(t);
+  });
+
+  // Core circle
+  svg.appendChild(svgEl('circle', { cx:0, cy:0, r:R.core, fill:'url(#coreGrad)' }));
+  ['에너지', '분류체계'].forEach((line, i) => {
+    const t = svgEl('text', {
+      x:0, y:(i-0.5)*14,
+      'text-anchor':'middle','dominant-baseline':'middle',
+      fill:'#CBD5E1','font-size':11,'font-weight':600,
+      'font-family':'Noto Sans KR, sans-serif',
+    });
+    t.textContent = line;
+    svg.appendChild(t);
+  });
+
+  // Gap dots
+  GAPS.forEach(g => {
+    const sec = SECTORS.find(s => s.id === g.sector);
+    const r = RING_RADII[g.ring - 1];
+    const p = polar(g.angle, r);
+    const gEl = svgEl('g', { class:'gap-group', style:'cursor:pointer' });
+
+    gEl.appendChild(svgEl('circle', {
+      cx:p.x, cy:p.y, r:12,
+      fill:'#FFF1F2', stroke:'#EF4444',
+      'stroke-width':1.5, 'stroke-dasharray':'3,2', opacity:0.93
+    }));
+    const qt = svgEl('text', {
+      x:p.x, y:p.y,
+      'text-anchor':'middle','dominant-baseline':'middle',
+      fill:'#EF4444','font-size':13,'font-weight':700,
+      'font-family':'DM Mono, monospace', 'pointer-events':'none',
+    });
+    qt.textContent = '?';
+    gEl.appendChild(qt);
+
+    // gap label lines
+    const lp = polar(g.angle, r + 24);
+    const labelLines = g.label.split('\n');
+    const lg = svgEl('g', { transform:`translate(${lp.x},${lp.y})`, 'pointer-events':'none' });
+    labelLines.forEach((line, i) => {
+      const t = svgEl('text', {
+        x:0, y:(i-(labelLines.length-1)/2)*9,
+        'text-anchor':'middle','dominant-baseline':'middle',
+        fill:'#EF4444','font-size':7.5,'font-weight':600,
+        'font-family':'Noto Sans KR, sans-serif',
+      });
+      t.textContent = line;
+      lg.appendChild(t);
+    });
+    gEl.appendChild(lg);
+
+    // gap tooltip
+    gEl.addEventListener('mouseenter', (e) => showGapTooltip(e, g, sec));
+    gEl.addEventListener('mousemove', moveTooltip);
+    gEl.addEventListener('mouseleave', hideTooltip);
+    svg.appendChild(gEl);
+  });
+
+  // Company dots
+  COMPANIES.forEach(co => {
+    const sec = SECTORS.find(s => s.id === co.sector);
+    const r = RING_RADII[co.ring - 1];
+    const p = polar(co.angle, r);
+    const trl = TRL_STYLE(co.trl);
+
+    const gEl = svgEl('g', { class:'company-group', style:'cursor:pointer' });
+
+    // outer TRL ring
+    gEl.appendChild(svgEl('circle', {
+      cx:p.x, cy:p.y, r:10,
+      fill: trl.bg, stroke: trl.color, 'stroke-width':1.3, opacity:0.95
+    }));
+    // sector color inner
+    gEl.appendChild(svgEl('circle', {
+      cx:p.x, cy:p.y, r:5,
+      fill: sec.color, opacity:0.92
+    }));
+
+    // Full company name label (not abbreviated)
+    const lp = polar(co.angle, r + 20);
+    const nameLines = co.name.length > 8
+      ? [co.name.replace('주식회사 ','').replace(' 주식회사','')]
+      : [co.name];
+    // Use full abbreviated name for SVG label (space is tight), but tooltip shows full name
+    const displayName = co.abbr;
+    const lblT = svgEl('text', {
+      x:lp.x, y:lp.y,
+      'text-anchor':'middle','dominant-baseline':'middle',
+      fill: sec.color,'font-size':7.5,'font-weight':700,
+      'font-family':'Noto Sans KR, sans-serif',
+    });
+    lblT.textContent = displayName;
+    gEl.appendChild(lblT);
+
+    gEl.addEventListener('mouseenter', (e) => showCompanyTooltip(e, co, sec, trl));
+    gEl.addEventListener('mousemove', moveTooltip);
+    gEl.addEventListener('mouseleave', hideTooltip);
+
+    svg.appendChild(gEl);
+  });
+
+  // Rim
+  svg.appendChild(svgEl('circle', {
+    cx:0, cy:0, r:R.rim,
+    fill:'none', stroke:'#CBD5E1','stroke-width':1
+  }));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOOLTIP
+   ═══════════════════════════════════════════════════════════════ */
+const tooltip = document.getElementById('tooltip');
+
+function showCompanyTooltip(e, co, sec, trl) {
+  const vcLabel = co.vc;
+  tooltip.innerHTML = `
+    <div class="tt-header">
+      <div class="tt-name">${co.name}</div>
+      <div class="tt-trl" style="background:${trl.bg};color:${trl.color}">${trl.label}</div>
+    </div>
+    <div class="tt-sector" style="background:${sec.light};color:${sec.color}">${sec.name}</div>
+    <hr class="tt-divider">
+    <div class="tt-grid">
+      <span class="tt-label">설립</span><span class="tt-value">${co.founded}년</span>
+      <span class="tt-label">대표자</span><span class="tt-value">${co.ceo}</span>
+      <span class="tt-label">밸류체인</span><span class="tt-value">${vcLabel}</span>
+      <span class="tt-label">태그</span><span class="tt-value">${co.tags.join(', ')}</span>
+    </div>
+    <div class="tt-summary">${co.summary}</div>
+  `;
+  tooltip.classList.add('visible');
+  moveTooltip(e);
+}
+
+function showGapTooltip(e, g, sec) {
+  tooltip.innerHTML = `
+    <div class="tt-header">
+      <div class="tt-name" style="color:#EF4444">📍 소싱 공백 영역</div>
+    </div>
+    <div class="tt-sector" style="background:${sec.light};color:${sec.color}">${sec.name}</div>
+    <hr class="tt-divider">
+    <div class="tt-grid">
+      <span class="tt-label">공백</span><span class="tt-value" style="font-weight:600">${g.label.replace('\n',' ')}</span>
+    </div>
+    <div class="tt-summary" style="margin-bottom:8px">${g.desc}</div>
+    <div style="font-size:9.5px;color:#1B4FD8;background:#EEF2FF;border-radius:5px;padding:6px 8px">
+      <b>소싱 키워드:</b> ${g.keywords}
+    </div>
+  `;
+  tooltip.classList.add('visible');
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const x = e.clientX, y = e.clientY;
+  const tw = 260, th = 260;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let left = x + 14, top = y + 14;
+  if (left + tw > vw - 10) left = x - tw - 14;
+  if (top + th > vh - 10) top = y - th - 14;
+  tooltip.style.left = left + 'px';
+  tooltip.style.top  = top  + 'px';
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LEFT PANEL — company list by sector
+   ═══════════════════════════════════════════════════════════════ */
+function buildLeftPanel() {
+  const panel = document.getElementById('leftPanel');
+  panel.innerHTML = `<div class="panel-label">포트폴리오 분류</div>`;
+
+  SECTORS.forEach(sec => {
+    const companies = COMPANIES.filter(c => c.sector === sec.id);
+    const block = document.createElement('div');
+    block.className = 'sector-block';
+
+    const head = document.createElement('div');
+    head.className = 'sector-head';
+    head.innerHTML = `
+      <div class="sector-swatch" style="background:${sec.color}"></div>
+      <div class="sector-name" style="color:${sec.color}">${sec.name}</div>
+    `;
+    block.appendChild(head);
+
+    const list = document.createElement('div');
+    list.className = 'company-list';
+    companies.forEach(co => {
+      const trl = TRL_STYLE(co.trl);
+      const item = document.createElement('div');
+      item.className = 'company-item';
+      item.innerHTML = `
+        <span class="company-dot" style="background:${sec.color}"></span>
+        <span style="flex:1">${co.name}</span>
+        <span class="trl-badge" style="background:${trl.bg};color:${trl.color}">${trl.label}</span>
+      `;
+      list.appendChild(item);
+    });
+    block.appendChild(list);
+    panel.appendChild(block);
+  });
+
+  // TRL legend at bottom
+  const legend = document.createElement('div');
+  legend.className = 'trl-legend';
+  legend.innerHTML = `
+    <div class="panel-label">TRL 기준 (KETEP 2025)</div>
+    <div class="trl-row">
+      <div class="trl-swatch" style="background:#D1FAE5;border-color:#059669"></div>
+      <span style="color:#059669;font-weight:600">TRL 7–9</span>
+      <span style="color:var(--muted);font-size:9px">상용화·양산</span>
+    </div>
+    <div class="trl-row">
+      <div class="trl-swatch" style="background:#FEF3C7;border-color:#B45309"></div>
+      <span style="color:#B45309;font-weight:600">TRL 4–6</span>
+      <span style="color:var(--muted);font-size:9px">시제품·실증</span>
+    </div>
+    <div class="trl-row">
+      <div class="trl-swatch" style="background:#FEE2E2;border-color:#DC2626"></div>
+      <span style="color:#DC2626;font-weight:600">TRL 1–3</span>
+      <span style="color:var(--muted);font-size:9px">개념·연구 초기</span>
+    </div>
+  `;
+  panel.appendChild(legend);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RIGHT PANEL — gaps only (no timeline, no synergy)
+   ═══════════════════════════════════════════════════════════════ */
+function buildRightPanel() {
+  const panel = document.getElementById('rightPanel');
+  panel.innerHTML = `<div class="panel-label">소싱 공백 영역</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+    기준: WEO 2025 중요도 × KETEP 국내 공백 × 스타트업 진입 가능성<br>
+    <span style="color:#EF4444">?</span> 버튼에 마우스를 올리면 상세 정보가 표시됩니다.
+  </div>`;
+
+  SECTORS.forEach(sec => {
+    const secGaps = GAPS.filter(g => g.sector === sec.id);
+    if (!secGaps.length) return;
+
+    const block = document.createElement('div');
+    block.className = 'gap-block';
+
+    const title = document.createElement('div');
+    title.className = 'gap-section-title';
+    title.textContent = sec.name;
+    block.appendChild(title);
+
+    secGaps.forEach(g => {
+      const item = document.createElement('div');
+      item.className = 'gap-item';
+      item.innerHTML = `
+        <div class="gap-badge" style="background:#FFF1F2;color:#EF4444;border:1px solid #FECACA">?</div>
+        <div class="gap-text">
+          <strong>${g.label.replace('\n', ' ')}</strong>
+          ${g.keywords}
+        </div>
+      `;
+      block.appendChild(item);
+    });
+    panel.appendChild(block);
+  });
+
+  // Note about removed sections
+  const note = document.createElement('div');
+  note.style.cssText = 'margin-top:auto;padding-top:14px;border-top:1px solid var(--line);font-size:9px;color:var(--muted);line-height:1.7';
+  note.innerHTML = `
+    <b style="color:var(--ink2)">※ 논의 필요 항목</b><br>
+    소싱 타임라인(즉시/6~12개월) 구분 기준 및 포트폴리오 시너지 연결은 내부 검증 후 추가 예정입니다.
+  `;
+  panel.appendChild(note);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+buildWheel();
+buildLeftPanel();
+buildRightPanel();
+</script>
+</body>
+</html>
